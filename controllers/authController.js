@@ -1,8 +1,8 @@
 import * as dotenv from "dotenv";
 dotenv.config();
-
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 import authModel from "../models/authModel.js";
 import transporter from "../utils/mailer.js";
 
@@ -67,9 +67,17 @@ const login = async (req, res) => {
     const match = await bcrypt.compare(password, user.Password);
     if (!match) return res.status(400).json({ error: "Invalid password" });
 
-    res
-      .status(200)
-      .json({ message: "Login successful", userId: user.SecurityUserId });
+    const token = jwt.sign(
+      { userId: user.SecurityUserId, email: user.LoginId },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      userId: user.SecurityUserId,
+    });
   } catch (err) {
     res.status(500).json({ error: "Something went wrong" });
   }
