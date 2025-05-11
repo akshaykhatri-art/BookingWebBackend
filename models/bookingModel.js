@@ -9,7 +9,7 @@ const addOrUpdate = async (data) => {
   const [rows] = await pool.query(
     "CALL spAddUpdateBooking(?,?,?,?,?,?,?,?,?)",
     [
-      data.BookingId || null,
+      data.BookingId ?? null,
       data.CustomerName,
       data.CustomerEmail,
       data.BookingDate,
@@ -32,11 +32,17 @@ const getById = async (bookingId, userId) => {
 };
 
 const deleteBooking = async (bookingId, userId) => {
-  const [rows] = await pool.query("CALL spDeleteBooking(?, ?)", [
+  const [resultSets] = await pool.query("CALL spDeleteBooking(?, ?)", [
     bookingId,
     userId,
   ]);
-  return rows.affectedRows ? rows[0] : [];
+
+  const [check] = await pool.query(
+    "SELECT Status FROM booking WHERE BookingId = ?",
+    [bookingId]
+  );
+
+  return check[0]?.Status === "Inactive";
 };
 
 export default { list, addOrUpdate, getById, delete: deleteBooking };

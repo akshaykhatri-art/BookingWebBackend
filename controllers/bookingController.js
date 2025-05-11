@@ -36,13 +36,18 @@ const getById = async (req, res) => {
 
 const deleteBooking = async (req, res) => {
   try {
-    const result = await bookingModel.delete(req.params.id, req.user.userId);
-    if (result.affectedRows === 0) {
-      return res
-        .status(403)
-        .json({ error: "Not allowed to delete this booking" });
+    const wasDeleted = await bookingModel.delete(
+      req.params.id,
+      req.user.userId
+    );
+
+    if (!wasDeleted) {
+      return res.status(403).json({
+        error: "Not allowed to delete this booking or already inactive",
+      });
     }
-    res.status(200).json({ message: "Booking deleted" });
+
+    res.status(200).json({ message: "Booking marked as inactive" });
   } catch (err) {
     res.status(500).json({ error: "Something went wrong" });
   }
