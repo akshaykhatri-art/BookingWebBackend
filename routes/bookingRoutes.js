@@ -11,6 +11,7 @@ router.use(express.json());
 router.use(authenticate);
 
 router.get("/", bookingController.list);
+router.get("/:id", bookingController.getById);
 router.post(
   "/",
   checkAllowedFields([

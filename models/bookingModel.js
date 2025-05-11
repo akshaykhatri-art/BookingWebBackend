@@ -1,7 +1,7 @@
 import pool from "../config/db.js";
 
 const list = async (userId) => {
-  const [rows] = await pool.query("CALL spGetBookings(?)", [userId]);
+  const [rows] = await pool.query("CALL spGetBookingList(?)", [userId]);
   return rows[0];
 };
 
@@ -23,6 +23,14 @@ const addOrUpdate = async (data) => {
   return rows[0];
 };
 
+const getById = async (bookingId, userId) => {
+  const [rows] = await pool.query("CALL spGetBookingById(?, ?)", [
+    bookingId,
+    userId,
+  ]);
+  return rows[0][0];
+};
+
 const deleteBooking = async (bookingId, userId) => {
   const [rows] = await pool.query("CALL spDeleteBooking(?, ?)", [
     bookingId,
@@ -31,4 +39,4 @@ const deleteBooking = async (bookingId, userId) => {
   return rows.affectedRows ? rows[0] : [];
 };
 
-export default { list, addOrUpdate, delete: deleteBooking };
+export default { list, addOrUpdate, getById, delete: deleteBooking };
